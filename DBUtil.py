@@ -57,12 +57,12 @@ class DBUtil:
         sql = "update users set nick='{}' where username='{}'".format(new_nick,username)
         self.executeUpdate(sql)
 
-    def register(self, username,pwd,nick,role):
+    def register(self, username,pwd,nick,realname,role):
     # 加密过程
         salt = bcrypt.gensalt(rounds=10)
         encrypt_passwd = bcrypt.hashpw(pwd.encode(), salt)
-        sql = "insert into users(username,password,nick,role)values('{}','{}','{}','{}')".format(
-                username,str(encrypt_passwd, "utf-8"),nick,role)
+        sql = "insert into users(username,password,nick,realname,role)values('{}','{}','{}','{}','{}')".format(
+                username,str(encrypt_passwd, "utf-8"),nick,realname,role)
         self.executeUpdate(sql)
 
     def checkLogin(self, user, passwd):
@@ -77,22 +77,28 @@ class DBUtil:
                 if ret:
                     return int(data[0][4]) #普通返回0，管理员返回1
                 else:
-                    return -1  #用户名存在，但密码错误
+                    return -2  #用户名存在，但密码错误
             else:
-                return -1  #用户名都不存在
+                return -2  #用户名都不存在
         except:
-            return -1 #服务器s或网络出错
+            return -1 #服务器或网络出错
     
     def create_chat(self,username1,username2,chat_name):
         sql = "insert into chat_list(username1,username2,chat_name)values('{}','{}','{}')".format(username1,username2,chat_name)
         self.executeUpdate(sql)
     
     def delete_chat(self,id):
-        sql = "DELETE FROM `chat_list` WHERE (`id` = '{}');".format(id)
+        sql = "delete from chat_list where id='{}'".format(id)
         self.executeUpdate(sql)
+
+    def getnick(self,username):
+        cursor = self.getCursor()
+        sql = "SELECT * FROM users where username='{}'".format(username)
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        return data[0][3]
 
 if __name__ == '__main__':
     db = DBUtil("gz-cdb-fvxckd3j.sql.tencentcdb.com", 63770, "root",
                     "N3DS7P7fSbJSMCtM", "test", "utf8mb4")
-    # db.register("jyd","123456","金一朵",0)
-    db.delete_chat("1")
+    db.delete_chat("3")
