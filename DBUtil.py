@@ -75,9 +75,9 @@ class DBUtil:
                 encrypt_pwd = data[0][2]
                 ret = bcrypt.checkpw(passwd.encode(), encrypt_pwd.encode())
                 if ret:
-                    return int(data[0][4]) #普通返回0，管理员返回1
+                    return int(data[0][5]) #普通返回0，管理员返回1
                 else:
-                    return -2  #用户名存在，但密码错误
+                    return -3  #用户名存在，但密码错误
             else:
                 return -2  #用户名都不存在
         except:
@@ -101,4 +101,4 @@ class DBUtil:
 if __name__ == '__main__':
     db = DBUtil("gz-cdb-fvxckd3j.sql.tencentcdb.com", 63770, "root",
                     "N3DS7P7fSbJSMCtM", "test", "utf8mb4")
-    db.delete_chat("3")
+    db.change_password("jyd","a")
