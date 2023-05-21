@@ -53,12 +53,16 @@ class DBUtil:
         sql = "update users set password='{}' where username='{}'".format(str(encrypt_passwd,"utf-8"),username)
         self.executeUpdate(sql)
 
-    def register(self, username,pwd,role):
+    def change_nick(self, username, new_nick):
+        sql = "update users set nick='{}' where username='{}'".format(new_nick,username)
+        self.executeUpdate(sql)
+
+    def register(self, username,pwd,nick,role):
     # 加密过程
         salt = bcrypt.gensalt(rounds=10)
         encrypt_passwd = bcrypt.hashpw(pwd.encode(), salt)
-        sql = "insert into users(username,password,role)values('{}','{}','{}')".format(
-                username,str(encrypt_passwd, "utf-8"),role)
+        sql = "insert into users(username,password,nick,role)values('{}','{}','{}','{}')".format(
+                username,str(encrypt_passwd, "utf-8"),nick,role)
         self.executeUpdate(sql)
 
     def checkLogin(self, user, passwd):
@@ -71,15 +75,24 @@ class DBUtil:
                 encrypt_pwd = data[0][2]
                 ret = bcrypt.checkpw(passwd.encode(), encrypt_pwd.encode())
                 if ret:
-                    return int(data[0][3]) #普通返回0，管理员返回1
+                    return int(data[0][4]) #普通返回0，管理员返回1
                 else:
                     return -1  #用户名存在，但密码错误
             else:
                 return -1  #用户名都不存在
         except:
             return -1 #服务器s或网络出错
-        
+    
+    def create_chat(self,username1,username2,chat_name):
+        sql = "insert into chat_list(username1,username2,chat_name)values('{}','{}','{}')".format(username1,username2,chat_name)
+        self.executeUpdate(sql)
+    
+    def delete_chat(self,id):
+        sql = "DELETE FROM `chat_list` WHERE (`id` = '{}');".format(id)
+        self.executeUpdate(sql)
+
 if __name__ == '__main__':
     db = DBUtil("gz-cdb-fvxckd3j.sql.tencentcdb.com", 63770, "root",
                     "N3DS7P7fSbJSMCtM", "test", "utf8mb4")
-    db.change_password('admin','a')
+    # db.register("jyd","123456","金一朵",0)
+    db.delete_chat("1")
