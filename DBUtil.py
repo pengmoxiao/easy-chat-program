@@ -86,6 +86,13 @@ class DBUtil:
     def create_chat(self,username1,username2,chat_name):
         sql = "insert into chat_list(username1,username2,chat_name)values('{}','{}','{}')".format(username1,username2,chat_name)
         self.executeUpdate(sql)
+        cursor = self.getCursor()
+        sql = "select * from chat_list where chat_name ='"+chat_name+"'"
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        id = data[0][0]
+        sql = "CREATE TABLE `test`.`chat_{}` (`id` INT NOT NULL AUTO_INCREMENT,`message` VARCHAR(45) NOT NULL,`user` VARCHAR(45) NOT NULL,`isread` VARCHAR(55) NOT NULL,PRIMARY KEY (`id`)) CHARACTER SET = utf8mb4;".format(id)
+        self.executeUpdate(sql)
     
     def delete_chat(self,id):
         sql = "delete from chat_list where id='{}'".format(id)
@@ -97,8 +104,18 @@ class DBUtil:
         cursor.execute(sql)
         data = cursor.fetchall()
         return data[0][3]
+    
+    def send(self,username,message,chat_name):
+        cursor = self.getCursor()
+        sql = "select * from chat_list where chat_name ='"+chat_name+"'"
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        id = data[0][0]
+        sql = "insert into chat_{}(message,user,isread)values('{}','{}','{}')".format(id,message,username,"0")
+        self.executeUpdate(sql)
 
 if __name__ == '__main__':
     db = DBUtil("gz-cdb-fvxckd3j.sql.tencentcdb.com", 63770, "root",
                     "N3DS7P7fSbJSMCtM", "test", "utf8mb4")
-    db.change_password("jyd","a")
+    # db.create_chat("a","b","e")
+    db.send("jyd00","test114514","e")
